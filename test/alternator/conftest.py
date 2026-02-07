@@ -57,7 +57,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "veryslow: mark test as very slow to run")
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--runveryslow"):
+    if config.getoption("runveryslow", default=False):
         # --runveryslow given in cli: do not skip veryslow tests
         return
     skip_veryslow = pytest.mark.skip(reason="need --runveryslow option to run")
@@ -122,22 +122,22 @@ def dynamodb(request, get_valid_alternator_role):
     # only makes it impossible for us to test various error conditions,
     # because boto3 checks them before we can get the server to check them.
     boto_config = botocore.client.Config(parameter_validation=False)
-    if request.config.getoption('aws'):
+    if request.config.getoption('aws', default=False):
         res = boto3.resource('dynamodb', config=boto_config)
     else:
         # Even though we connect to the local installation, Boto3 still
         # requires us to specify dummy region and credential parameters,
         # otherwise the user is forced to properly configure ~/.aws even
         # for local runs.
-        if request.config.getoption('url') != None:
-            local_url = request.config.getoption('url')
+        if request.config.getoption('url', default=None) != None:
+            local_url = request.config.getoption('url', default=None)
         elif address := request.getfixturevalue("host"):
             # this argument needed for compatibility with PythonTestSuite without modifying the previous behavior
             local_url = f"http://{address}:8000"
         else:
-            local_url = 'https://localhost:8043' if request.config.getoption('https') else 'http://localhost:8000'
+            local_url = 'https://localhost:8043' if request.config.getoption('https', default=False) else 'http://localhost:8000'
         # Disable verifying in order to be able to use self-signed TLS certificates
-        verify = not request.config.getoption('https')
+        verify = not request.config.getoption('https', default=False)
         user, secret = get_valid_alternator_role(local_url)
         res = boto3.resource('dynamodb', endpoint_url=local_url, verify=verify,
             region_name='us-east-1', aws_access_key_id=user, aws_secret_access_key=secret,
@@ -151,7 +151,7 @@ def new_dynamodb_session(request, dynamodb, get_valid_alternator_role):
         ses = boto3.Session()
         host = urlparse(dynamodb.meta.client._endpoint.host)
         conf = botocore.client.Config(parameter_validation=False)
-        if request.config.getoption('aws'):
+        if request.config.getoption('aws', default=False):
             return boto3.resource('dynamodb', config=conf)
         if host.hostname == 'localhost':
             conf = conf.merge(botocore.client.Config(retries={"max_attempts": 0}, read_timeout=300))
@@ -168,22 +168,22 @@ def dynamodbstreams(request, get_valid_alternator_role):
     # only makes it impossible for us to test various error conditions,
     # because boto3 checks them before we can get the server to check them.
     boto_config = botocore.client.Config(parameter_validation=False)
-    if request.config.getoption('aws'):
+    if request.config.getoption('aws', default=False):
         res = boto3.client('dynamodbstreams', config=boto_config)
     else:
         # Even though we connect to the local installation, Boto3 still
         # requires us to specify dummy region and credential parameters,
         # otherwise the user is forced to properly configure ~/.aws even
         # for local runs.
-        if request.config.getoption('url') != None:
-            local_url = request.config.getoption('url')
+        if request.config.getoption('url', default=None) != None:
+            local_url = request.config.getoption('url', default=None)
         elif address := request.getfixturevalue("host"):
             # this argument needed for compatibility with PythonTestSuite without modifying the previous behavior
             local_url = f"http://{address}:8000"
         else:
-            local_url = 'https://localhost:8043' if request.config.getoption('https') else 'http://localhost:8000'
+            local_url = 'https://localhost:8043' if request.config.getoption('https', default=False) else 'http://localhost:8000'
         # Disable verifying in order to be able to use self-signed TLS certificates
-        verify = not request.config.getoption('https')
+        verify = not request.config.getoption('https', default=False)
         user, secret = get_valid_alternator_role(local_url)
         res = boto3.client('dynamodbstreams', endpoint_url=local_url, verify=verify,
             region_name='us-east-1', aws_access_key_id=user, aws_secret_access_key=secret,

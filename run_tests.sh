@@ -194,13 +194,13 @@ directory_list=(
     "test/raft"
     "test/unit"
     "test/vector_search"
-    "test/alternator"
     "test/broadcast_tables"
     "test/cql"
     "test/cqlpy"
     "test/rest_api"
     "test/nodetool"
     "test/scylla_gdb"
+    "test/alternator"
     "test/vector_search_validator" # Moved to the end of the list as it is the longest running test and we want to run it last to get faster feedback on other tests
 )
 

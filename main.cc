@@ -659,14 +659,14 @@ To start the scylla server proper, simply invoke as: scylla server (or just scyl
 
         // We don't want ScyllaDB to run with the io_uring backend.
         // So select the default reactor backend explicitly here.
-        if (std::ranges::contains(candidates, "linux-aio")) {
-            app_cfg.reactor_opts.reactor_backend.select_default_candidate("linux-aio");
-        } else {
-            app_cfg.reactor_opts.reactor_backend.select_default_candidate("epoll");
-        }
+        // if (std::ranges::contains(candidates, "linux-aio")) {
+        //     app_cfg.reactor_opts.reactor_backend.select_default_candidate("linux-aio");
+        // } else {
+        //     app_cfg.reactor_opts.reactor_backend.select_default_candidate("epoll");
+        // }
 
         // Leave some reserve IOCBs for scylla-nodetool and other native tool apps.
-        if (std::ranges::contains(candidates, "io_uring")) {
+        if (std::ranges::contains(candidates, "io_uring") || std::ranges::contains(candidates, "asymmetric_io_uring")) {
             app_cfg.reactor_opts.reserve_io_control_blocks.set_default_value(10);
         } else {
             startlog.warn("Need to leave extra IOCBs in reserve for tools because the io_uring reactor backend is not available."

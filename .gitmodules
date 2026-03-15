@@ -2,6 +2,8 @@
 	path = seastar
 	url = ../seastar
 	ignore = dirty
+	branch = tests/run-tests-for-pavel
+	remote = zpp
 [submodule "swagger-ui"]
 	path = swagger-ui
 	url = ../scylla-swagger-ui
